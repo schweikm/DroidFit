@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- Strings related to new account -->
+    <string name="title_newAccount">New Account</string>
+    <string name="new_prompt_email">Email</string>
+    <string name="new_prompt_password">Password</string>
+    <string name="action_new_submit">Submit</string>
+    <string name="action_new_cancel">Cancel</string>
+    <string name="new_prompt_first_name">First Name</string>
+    <string name="new_prompt_last_name">Last Name</string>
+    <string name="error_account_failed">Account Creating Failed</string>
+</resources>

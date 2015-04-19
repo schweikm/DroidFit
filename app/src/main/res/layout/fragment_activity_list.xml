@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tableLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <!-- column 1 - image + date -->
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <!-- image -->
+        <ImageView
+            android:id="@+id/activity_table_logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/running_logo" />
+
+        <!-- activity type -->
+        <TextView
+            android:id="@+id/activity_table_text"
+            android:text="(Running)"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- date -->
+        <TextView
+            android:id="@+id/activity_table_date"
+            android:text="date goes here"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </TableRow>
+
+    <!-- column 2 - distance + time -->
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <!-- activity distance -->
+        <TextView
+            android:id="@+id/activity_table_distance"
+            android:text="13.1 miles"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- activity time -->
+        <TextView
+            android:id="@+id/activity_table_time"
+            android:text="02:11:34"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </TableRow>
+
+    <!-- just draw a black line -->
+    <View
+        android:layout_height="1dip"
+        android:background="#000000" />
+</TableLayout>
