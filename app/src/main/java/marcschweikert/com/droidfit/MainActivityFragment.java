@@ -1,30 +1,32 @@
 package marcschweikert.com.droidfit;
 
 import android.app.ListFragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
+
+import java.util.List;
+
+import marcschweikert.com.database.Account;
+import marcschweikert.com.database.DatabaseHelper;
 
 /**
  * Created by Marc on 4/18/2015.
  */
 public class MainActivityFragment extends ListFragment {
     private int itemSelected = -1;
+    private Account myAccount;
 
     @Override
     public void onResume() {
         super.onResume();
         //TODO: get current user's activities
-        setListAdapter(getAllActivities());
+        setListAdapter(getAllActivities(myAccount));
     }
 
     @Override
@@ -37,13 +39,19 @@ public class MainActivityFragment extends ListFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        // get the account from the intent
+        final Bundle bundle = getActivity().getIntent().getExtras();
+        myAccount = (Account) bundle.getSerializable("account");
+
+        Log.i(getClass().getSimpleName(), "FRAGMENT STARTED FOR ->" + myAccount.getEmail() + "<-");
     }
 
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setEmptyText("No Activites");
-        setListAdapter(getAllActivities());
+        setEmptyText(getResources().getString(R.string.main_no_activities));
+        setListAdapter(getAllActivities(myAccount));
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
@@ -58,18 +66,18 @@ public class MainActivityFragment extends ListFragment {
         final MenuItem deleteMI = menu.findItem(R.id.menu_main_delete);
         final MenuItem editMI = menu.findItem(R.id.menu_main_edit);
         final MenuItem newMI = menu.findItem(R.id.menu_main_new);
-        final MenuItem viewMI = menu.findItem(R.id.menu_main_view);
+        final MenuItem detailsMI = menu.findItem(R.id.menu_main_details);
 
         if (itemSelected != -1) {
             deleteMI.setEnabled(true);
             editMI.setEnabled(true);
-            viewMI.setEnabled(true);
+            detailsMI.setEnabled(true);
             newMI.setEnabled(true);
         } else {
             newMI.setEnabled(true);
             deleteMI.setEnabled(false);
             editMI.setEnabled(false);
-            viewMI.setEnabled(false);
+            detailsMI.setEnabled(false);
         }
     }
 
@@ -84,8 +92,8 @@ public class MainActivityFragment extends ListFragment {
         if (item.getItemId() == R.id.menu_main_edit) {
             Log.i(getClass().getSimpleName(), "EDIT ACTIVITY " + itemSelected);
         }
-        if (item.getItemId() == R.id.menu_main_view) {
-            Log.i(getClass().getSimpleName(), "VIEW ACTIVITY " + itemSelected);
+        if (item.getItemId() == R.id.menu_main_details) {
+            Log.i(getClass().getSimpleName(), "DETAILS ACTIVITY " + itemSelected);
         }
 
         return true;
@@ -97,12 +105,16 @@ public class MainActivityFragment extends ListFragment {
         getActivity().invalidateOptionsMenu();
     }
 
-    public ArrayAdapter<String> getAllActivities() {
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_single_choice);
+    public ArrayAdapter<String> getAllActivities(final Account account) {
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_single_choice);
 
-        adapter.add("Running");
-        adapter.add("Cycling");
-        adapter.add("Swimming");
+        // pull activities from the database for the current account
+        final DatabaseHelper helper = new DatabaseHelper(getActivity());
+        final List<DroidFitActivity> activities = helper.getUserActivities(account);
+
+        for (final DroidFitActivity activity : activities) {
+            adapter.add(activity.getText());
+        }
 
         return adapter;
     }

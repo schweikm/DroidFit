@@ -2,11 +2,16 @@ package marcschweikert.com.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.database.Cursor;
-import android.database.SQLException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import marcschweikert.com.droidfit.DroidFitActivity;
 
 /**
  * Database interface to store and retrieve username, hashed password combinations
@@ -157,13 +162,13 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         try {
             if (cursor.moveToFirst()) {
                 Log.i(getClass().getSimpleName(), "Found account for " + email);
-                Integer id = null;
+                Integer id;
                 try {
                     id = Integer.parseInt(cursor.getString(0));
                 }
                 catch(final Exception e) {
                     Log.e(getClass().getSimpleName(), "");
-                    return account;
+                    return null;
                 }
 
                 account = new Account(id,
@@ -186,6 +191,21 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         return account;
     }
 
+    public List<DroidFitActivity> getUserActivities(final Account account) {
+        final String email = account.getEmail();
+        final List<DroidFitActivity> list = new ArrayList<>();
+
+        final DroidFitActivity activity1 = new DroidFitActivity(null, "Running", null, null, null);
+        list.add(activity1);
+
+        final DroidFitActivity activity2 = new DroidFitActivity(null, "Cycling", null, null, null);
+        list.add(activity2);
+
+        final DroidFitActivity activity3 = new DroidFitActivity(null, "Swimming", null, null, null);
+        list.add(activity3);
+
+        return list;
+    }
 
     /**
      * Upgrades the database.
