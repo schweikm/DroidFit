@@ -6,18 +6,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.util.Log;
 
 import marcschweikert.com.database.Account;
 import marcschweikert.com.database.DatabaseHelper;
@@ -90,13 +86,6 @@ public class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !ValidatorUtils.isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
@@ -108,13 +97,22 @@ public class LoginActivity extends Activity {
             cancel = true;
         }
 
+        // Check for a valid password
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!ValidatorUtils.isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
+            // There was an error; don't attempt login and focus the first form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+            // Show a progress spinner, and kick off a background task to perform the user login attempt.
             showProgress(true);
 
             // hash the password
@@ -176,17 +174,27 @@ public class LoginActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(final Void... params) {
+            if (null == myAccount) {
+                Log.e(getClass().getSimpleName(), "Attempted to authenticate with null account!");
+                return false;
+            }
+
             Log.i(getClass().getSimpleName(), "Attempting to authenticate account for " + myAccount.getEmail());
 
             final DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
             final Account dbAccount = helper.getUserAccount(myAccount.getEmail());
 
-            if (! dbAccount.getHashedPassword().equals(myAccount.getHashedPassword())) {
-                Log.i(getClass().getSimpleName(), "Passwords do not match - login failed!");
+            if (null == dbAccount) {
+                Log.i(getClass().getSimpleName(), "DatabaseHelper returned null account");
                 return false;
             }
 
-            Log.i(getClass().getSimpleName(), "Login successful");
+            if (! dbAccount.getHashedPassword().equals(myAccount.getHashedPassword())) {
+                Log.i(getClass().getSimpleName(), "Passwords do not match");
+                return false;
+            }
+
+            Log.i(getClass().getSimpleName(), "Passwords match");
             myAccount = dbAccount;
             return true;
         }
@@ -207,7 +215,7 @@ public class LoginActivity extends Activity {
 
                 startActivity(intent);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.setError(getString(R.string.error_login_failed));
                 mPasswordView.requestFocus();
             }
         }

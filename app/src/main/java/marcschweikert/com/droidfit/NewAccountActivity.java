@@ -15,8 +15,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.Objects;
-
 import marcschweikert.com.database.Account;
 import marcschweikert.com.database.DatabaseHelper;
 import marcschweikert.com.security.CryptoFacade;
@@ -96,13 +94,6 @@ public class NewAccountActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !ValidatorUtils.isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
@@ -114,25 +105,44 @@ public class NewAccountActivity extends Activity {
             cancel = true;
         }
 
-        // Check for a valid name.
+        // Check for a valid password
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!ValidatorUtils.isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid first name
         if (TextUtils.isEmpty(firstName)) {
             mFirstNameView.setError(getString(R.string.error_field_required));
             focusView = mFirstNameView;
             cancel = true;
+        } else if (!ValidatorUtils.isNameValid(firstName)) {
+            mFirstNameView.setError(getString(R.string.error_invalid_name));
+            focusView = mFirstNameView;
+            cancel = true;
         }
+
+        // Check for a valid last name
         if (TextUtils.isEmpty(lastName)) {
             mLastNameView.setError(getString(R.string.error_field_required));
+            focusView = mLastNameView;
+            cancel = true;
+        } else if (!ValidatorUtils.isNameValid(lastName)) {
+            mLastNameView.setError(getString(R.string.error_invalid_name));
             focusView = mLastNameView;
             cancel = true;
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
+            // There was an error; don't attempt login and focus the first form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+            // Show a progress spinner, and kick off a background task to perform the user login attempt.
             showProgress(true);
 
             // hash the password
@@ -194,6 +204,11 @@ public class NewAccountActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            if (null == myAccount) {
+                Log.e(getClass().getSimpleName(), "Attempted to create null account");
+                return false;
+            }
+
             final DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
             final DatabaseHelper.DB_STATUS status = helper.insertAccount(myAccount);
 

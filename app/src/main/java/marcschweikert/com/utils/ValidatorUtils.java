@@ -6,12 +6,26 @@ package marcschweikert.com.utils;
 public class ValidatorUtils {
 
     public static boolean isEmailValid(final String email) {
-        //TODO: Replace this with your own logic
+        if (null == email) {
+            return false;
+        }
+
         return email.contains("@");
     }
 
     public static boolean isPasswordValid(final String password) {
-        //TODO: Replace this with your own logic
+        if (null == password) {
+            return false;
+        }
+
         return password.length() > 4;
+    }
+
+    public static boolean isNameValid(final String name) {
+        if (null == name) {
+            return false;
+        }
+
+        return !name.matches(".*\\d+.*");
     }
 }
