@@ -118,7 +118,7 @@ public class LoginActivity extends Activity {
             // hash the password
             final String hashedPassword = CryptoFacade.getInstance().hashPassword(password);
 
-            final Account account = new Account(null, null, null, email, hashedPassword);
+            final Account account = new Account(null, null, email, hashedPassword);
             mAuthTask = new UserLoginTask(account);
             mAuthTask.execute((Void) null);
         }
@@ -189,7 +189,7 @@ public class LoginActivity extends Activity {
                 return false;
             }
 
-            if (! dbAccount.getHashedPassword().equals(myAccount.getHashedPassword())) {
+            if (!dbAccount.getHashedPassword().equals(myAccount.getHashedPassword())) {
                 Log.i(getClass().getSimpleName(), "Passwords do not match");
                 return false;
             }

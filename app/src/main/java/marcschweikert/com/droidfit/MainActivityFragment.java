@@ -1,6 +1,7 @@
 package marcschweikert.com.droidfit;
 
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -84,7 +85,14 @@ public class MainActivityFragment extends ListFragment {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         if (item.getItemId() == R.id.menu_main_new) {
-            Log.i(getClass().getSimpleName(), "NEW ACTIVITY " + itemSelected);
+            final Intent intent = new Intent(getActivity(), NewActivityActivity.class);
+
+            // pass the account to the main activity
+            final Bundle bundle = new Bundle();
+            bundle.putSerializable("account", myAccount);
+            intent.putExtras(bundle);
+
+            startActivity(intent);
         }
         if (item.getItemId() == R.id.menu_main_delete) {
             Log.i(getClass().getSimpleName(), "DELETE ACTIVITY " + itemSelected);

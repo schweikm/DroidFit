@@ -1,21 +1,28 @@
 package marcschweikert.com.security;
 
+import android.util.Log;
+
 import javax.crypto.SecretKey;
 
-import android.util.Log;
 /**
  * This is a Facade for the CryptoEngine class.
- *
+ * <p/>
  * It is implemented as a Singleton such that we only initialize the crypto engine with our secret
  * passphrase once.  We will store an instance of the CryptoEngine and then delegate to it
  */
 public class CryptoFacade {
-    /** Our Singleton instance */
-    private static CryptoFacade theInstance;
-    /** CryptoEngine to delegate to */
-    private CryptoEngine myCryptoEngine;
-    /** Our secret key.  Good thing this isn't a security course! */
+    /**
+     * Our secret key.  Good thing this isn't a security course!
+     */
     private static final String SECRET_KEY = "OOADisFun!";
+    /**
+     * Our Singleton instance
+     */
+    private static CryptoFacade theInstance;
+    /**
+     * CryptoEngine to delegate to
+     */
+    private CryptoEngine myCryptoEngine;
 
     /**
      * Initialize the CryptoEngine with our secret key
@@ -51,7 +58,7 @@ public class CryptoFacade {
         String hashedPassword = null;
 
         // don't bother encrypting invalid passwords
-        if(null == clearPassword || clearPassword.equals("")) {
+        if (null == clearPassword || clearPassword.equals("")) {
             return hashedPassword;
         }
 

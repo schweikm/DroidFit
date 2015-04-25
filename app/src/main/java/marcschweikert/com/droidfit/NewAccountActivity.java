@@ -148,7 +148,7 @@ public class NewAccountActivity extends Activity {
             // hash the password
             final String hashedPassword = CryptoFacade.getInstance().hashPassword(password);
 
-            final Account account = new Account(null, firstName, lastName, email, hashedPassword);
+            final Account account = new Account(firstName, lastName, email, hashedPassword);
             mAccountTask = new NewAccountTask(account);
             mAccountTask.execute((Void) null);
         }
