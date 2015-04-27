@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import marcschweikert.com.database.Account;
-import marcschweikert.com.database.DatabaseHelper;
+import marcschweikert.com.database.DatabaseFacade;
 import marcschweikert.com.security.CryptoFacade;
 import marcschweikert.com.utils.ValidatorUtils;
 
@@ -181,11 +181,11 @@ public class LoginActivity extends Activity {
 
             Log.i(getClass().getSimpleName(), "Attempting to authenticate account for " + myAccount.getEmail());
 
-            final DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+            final DatabaseFacade helper = new DatabaseFacade(getApplicationContext());
             final Account dbAccount = helper.getUserAccount(myAccount.getEmail());
 
             if (null == dbAccount) {
-                Log.i(getClass().getSimpleName(), "DatabaseHelper returned null account");
+                Log.i(getClass().getSimpleName(), "DatabaseFacade returned null account");
                 return false;
             }
 

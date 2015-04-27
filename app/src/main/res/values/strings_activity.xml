@@ -2,4 +2,5 @@
 <resources>
     <string name="title_new_activity">New Activity</string>
     <string name="new_activity_submit">Submit</string>
+    <string name="new_activity_cancel">Cancel</string>
 </resources>

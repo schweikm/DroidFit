@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import marcschweikert.com.database.Account;
-import marcschweikert.com.database.DatabaseHelper;
+import marcschweikert.com.database.DatabaseFacade;
 import marcschweikert.com.security.CryptoFacade;
 import marcschweikert.com.utils.ValidatorUtils;
 
@@ -60,8 +60,7 @@ public class NewAccountActivity extends Activity {
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -209,10 +208,10 @@ public class NewAccountActivity extends Activity {
                 return false;
             }
 
-            final DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
-            final DatabaseHelper.DB_STATUS status = helper.insertAccount(myAccount);
+            final DatabaseFacade helper = new DatabaseFacade(getApplicationContext());
+            final DatabaseFacade.DB_STATUS status = helper.insertAccount(myAccount);
 
-            if (status == DatabaseHelper.DB_STATUS.ACCOUNT_SUCCESSFUL) {
+            if (status == DatabaseFacade.DB_STATUS.ACCOUNT_SUCCESSFUL) {
                 return true;
             }
 

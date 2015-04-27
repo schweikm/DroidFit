@@ -33,9 +33,9 @@
             android:label="@string/title_main"
             android:windowSoftInputMode="adjustResize|stateVisible"></activity>
 
-        <!-- NewActivityActivity -->
+        <!-- DroidFitActivityActivity -->
         <activity
-            android:name=".NewActivityActivity"
+            android:name=".DroidFitActivityActivity"
             android:label="@string/title_new_activity"
             android:windowSoftInputMode="adjustResize|stateVisible"></activity>
     </application>

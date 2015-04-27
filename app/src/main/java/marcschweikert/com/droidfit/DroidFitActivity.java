@@ -3,6 +3,7 @@ package marcschweikert.com.droidfit;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 
 import marcschweikert.com.utils.DateUtils;
@@ -30,6 +31,30 @@ public abstract class DroidFitActivity {
         myDuration = duration;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("\n--------------------\n");
+        builder.append("Type:  " + getText() + "\n");
+
+        if (null != myDate) {
+            builder.append("Date:  " + DateUtils.formatDateTime(myDate) + "\n");
+        }
+
+        if (null != myDistance) {
+            final DecimalFormat format = new DecimalFormat("0.00");
+            builder.append("Dist:  " + format.format(myDistance) + "\n");
+        }
+
+        if (null != myDuration) {
+            builder.append("Dur :  " + DateUtils.formatTime(myDuration) + "\n");
+        }
+
+        builder.append("--------------------\n");
+
+        return builder.toString();
+    }
+
     // abstract class methods
     public abstract String getText();
 
@@ -40,16 +65,12 @@ public abstract class DroidFitActivity {
         return myContext;
     }
 
-    public void setDate(final Calendar date) {
-        myDate = date;
-    }
-
     public Calendar getDate() {
         return myDate;
     }
 
-    public void setDate(final String date) {
-        myDate = DateUtils.convertStringToCalendar(date);
+    public void setDate(final Calendar date) {
+        myDate = date;
     }
 
     public Double getDistance() {
@@ -60,15 +81,11 @@ public abstract class DroidFitActivity {
         myDistance = distance;
     }
 
-    public void setDuration(final Calendar duration) {
-        myDuration = duration;
-    }
-
     public Calendar getDuration() {
         return myDuration;
     }
 
-    public void setDuration(final String duration) {
-        myDuration = DateUtils.convertStringToCalendar(duration);
+    public void setDuration(final Calendar duration) {
+        myDuration = duration;
     }
 }

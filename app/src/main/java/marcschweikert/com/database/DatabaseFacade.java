@@ -21,7 +21,7 @@ import marcschweikert.com.utils.DateUtils;
  *
  * @author Marc Schweikert
  */
-public final class DatabaseHelper extends SQLiteOpenHelper {
+public final class DatabaseFacade extends SQLiteOpenHelper {
     /**
      * Database version - change to upgrade
      */
@@ -94,11 +94,12 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
      * activity duration
      */
     private static final String ACTIVITY_COL_DURATION = "activity_duration";
-    private Context myContext;
+
     /**
-     * Reference to SQLite database
+     * context for superclass
      */
-    private SQLiteDatabase theDatabase = null;
+    private Context myContext;
+
 
     /**
      * Default constructor for class. Passes application context to parent and
@@ -106,10 +107,9 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @param context (Context) Application context
      */
-    public DatabaseHelper(final Context context) {
+    public DatabaseFacade(final Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         myContext = context;
-        theDatabase = getWritableDatabase();
     }
 
 
@@ -150,8 +150,9 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         values.put(PROFILE_COL_EMAIL, account.getEmail());
         values.put(PROFILE_COL_PASS, account.getHashedPassword());
 
-        try {
-            theDatabase.insertOrThrow(PROFILE_TABLE, null, values);
+
+        try (final SQLiteDatabase db = getWritableDatabase()) {
+            db.insertOrThrow(PROFILE_TABLE, null, values);
         } catch (final Exception e) {
             return DB_STATUS.ACCOUNT_FAILED;
         }
@@ -172,30 +173,26 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // query the database
-        final Cursor cursor = theDatabase.query(PROFILE_TABLE,
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(PROFILE_TABLE,
                 new String[]{PROFILE_COL_FIRST_NAME, PROFILE_COL_LAST_NAME, PROFILE_COL_EMAIL, PROFILE_COL_PASS},
                 PROFILE_COL_EMAIL + " = ?", new String[]{email},
                 null, null, null);
 
-        Account account = null;
-        try {
-            if (cursor.moveToFirst()) {
-                Log.i(getClass().getSimpleName(), "Found account for " + email);
-                account = new Account(cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3));
-            } else {
-                Log.w(getClass().getSimpleName(), "No account found for:  " + email);
-            }
-        } catch (final SQLException e) {
-            Log.e(getClass().getSimpleName(), "Unable to process SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        } catch (final Exception e) {
-            Log.e(getClass().getSimpleName(), "Unhandled exception SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
+        if (cursor.getCount() > 1) {
+            Log.w(getClass().getSimpleName(), "Found more than one account for " + email);
         }
 
+        Account account = null;
+        while (cursor.moveToNext()) {
+            Log.i(getClass().getSimpleName(), "Found account for " + email);
+            account = new Account(cursor.getString(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3));
+        }
+
+        db.close();
         cursor.close();
         return account;
     }
@@ -207,30 +204,26 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // query the database
-        final Cursor cursor = theDatabase.query(PROFILE_TABLE,
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(PROFILE_TABLE,
                 new String[]{PROFILE_COL_ID},
                 PROFILE_COL_EMAIL + " = ?", new String[]{email},
                 null, null, null);
 
-        Integer id = null;
-        try {
-            if (cursor.moveToFirst()) {
-                try {
-                    id = Integer.parseInt(cursor.getString(0));
-                } catch (final Exception e) {
-                    Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
-                }
-            } else {
-                Log.w(getClass().getSimpleName(), "No account id found for:  " + email);
-            }
-        } catch (final SQLException e) {
-            Log.e(getClass().getSimpleName(), "Unable to process SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        } catch (final Exception e) {
-            Log.e(getClass().getSimpleName(), "Unhandled exception SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
+        if (cursor.getCount() > 1) {
+            Log.w(getClass().getSimpleName(), "Found more than one account ID for " + email);
         }
 
+        Integer id = null;
+        while (cursor.moveToNext()) {
+            try {
+                id = Integer.parseInt(cursor.getString(0));
+            } catch (final Exception e) {
+                Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
+            }
+        }
+
+        db.close();
         cursor.close();
         return id;
     }
@@ -263,12 +256,12 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         final ContentValues values = new ContentValues();
         values.put(ACTIVITY_COL_USER_ID, account_id);
         values.put(ACTIVITY_COL_TYPE_ID, type_id);
-        values.put(ACTIVITY_COL_DATE, DateUtils.converCalendarToString(activity.getDate()));
+        values.put(ACTIVITY_COL_DATE, DateUtils.formatDateTime(activity.getDate()));
         values.put(ACTIVITY_COL_DISTANCE, activity.getDistance());
-        values.put(ACTIVITY_COL_DURATION, DateUtils.converCalendarToString(activity.getDuration()));
+        values.put(ACTIVITY_COL_DURATION, DateUtils.formatDateTime(activity.getDuration()));
 
-        try {
-            theDatabase.insertOrThrow(ACTIVITY_TABLE, null, values);
+        try (final SQLiteDatabase db = getWritableDatabase()) {
+            db.insertOrThrow(ACTIVITY_TABLE, null, values);
         } catch (final Exception e) {
             return false;
         }
@@ -291,57 +284,32 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // query the database
-        final Cursor cursor = theDatabase.query(ACTIVITY_TABLE,
-                new String[]{ACTIVITY_COL_ID, ACTIVITY_COL_TYPE_ID, ACTIVITY_COL_DATE, ACTIVITY_COL_DISTANCE, ACTIVITY_COL_DURATION},
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(ACTIVITY_TABLE,
+                new String[]{ACTIVITY_COL_TYPE_ID, ACTIVITY_COL_DATE, ACTIVITY_COL_DISTANCE, ACTIVITY_COL_DURATION},
                 ACTIVITY_COL_USER_ID + " = ?", new String[]{(account_id).toString()},
                 null, null, null);
 
         Log.i(getClass().getSimpleName(), "Found " + cursor.getCount() + " activities for " + account.getEmail());
 
-        try {
-            cursor.moveToFirst();
-            for (int i = 0; i < cursor.getCount(); i++) {
-                // get integer id
-                Integer id;
-                try {
-                    id = Integer.parseInt(cursor.getString(0));
-                } catch (final Exception e) {
-                    Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
-                    continue;
-                }
+        while (cursor.moveToNext()) {
+            // not sure how to create the activity - time for a factory!
+            final DroidFitActivity activity = DroidFitActivityFactory.createActivityByName(myContext, cursor.getString(0));
 
-                // get integer for type id
-                Integer type_id;
-                try {
-                    type_id = Integer.parseInt(cursor.getString(1));
-                } catch (final Exception e) {
-                    Log.e(getClass().getSimpleName(), "Failed to convert type_id " + cursor.getString(1) + " to int");
-                    continue;
-                }
-
-                // not sure how to create the activity - time for a factory!
-                final DroidFitActivity activity = DroidFitActivityFactory.createActivity(myContext, id, type_id);
-
-                if (null == activity) {
-                    Log.e(getClass().getSimpleName(), "Activity factory returned null activity!");
-                    continue;
-                }
-
-                // now set the other attributes
-                activity.setDate(cursor.getString(2));
-                activity.setDistance(cursor.getDouble(3));
-                activity.setDuration(cursor.getString(4));
-
-                list.add(activity);
+            if (null == activity) {
+                Log.e(getClass().getSimpleName(), "Activity factory returned null activity!");
+                continue;
             }
-        } catch (final SQLException e) {
-            Log.e(getClass().getSimpleName(), "Unable to process SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        } catch (final Exception e) {
-            Log.e(getClass().getSimpleName(), "Unhandled exception SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
+
+            // now set the other attributes
+            activity.setDate(DateUtils.convertStringToCalendar(cursor.getString(1)));
+            activity.setDistance(cursor.getDouble(2));
+            activity.setDuration(DateUtils.convertStringToCalendar(cursor.getString(3)));
+
+            list.add(activity);
         }
 
+        db.close();
         cursor.close();
         return list;
     }
@@ -352,6 +320,24 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
     /////////////////////////////
 
 
+    public List<String> getActivityTypes() {
+        // query the database
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(ACTIVITY_TYPE_TABLE,
+                new String[]{ACTIVITY_TYPE_COL_TEXT},
+                ACTIVITY_TYPE_COL_TEXT + " IS NOT NULL", null, null, null, null);
+
+        final List<String> activityTypes = new ArrayList<>();
+        while (cursor.moveToNext()) {
+
+            activityTypes.add(cursor.getString(0));
+        }
+
+        db.close();
+        cursor.close();
+        return activityTypes;
+    }
+
     public String getActivityTypeString(final Integer type_id) {
         if (null == type_id) {
             Log.e(getClass().getSimpleName(), "Attempted to retrieve text of null activity");
@@ -359,26 +345,22 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // query the database
-        final Cursor cursor = theDatabase.query(ACTIVITY_TYPE_TABLE,
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(ACTIVITY_TYPE_TABLE,
                 new String[]{ACTIVITY_TYPE_COL_TEXT},
                 ACTIVITY_TYPE_COL_ID + " = ?", new String[]{type_id.toString()},
                 null, null, null);
 
-        String type_text = null;
-        try {
-            if (cursor.moveToFirst()) {
-                type_text = cursor.getString(0);
-            } else {
-                Log.w(getClass().getSimpleName(), "No activity text found for:  " + type_id);
-            }
-        } catch (final SQLException e) {
-            Log.e(getClass().getSimpleName(), "Unable to process SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        } catch (final Exception e) {
-            Log.e(getClass().getSimpleName(), "Unhandled exception SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
+        if (cursor.getCount() > 1) {
+            Log.w(getClass().getSimpleName(), "Found more than one activity type for " + type_id);
         }
 
+        String type_text = null;
+        while (cursor.moveToNext()) {
+            type_text = cursor.getString(0);
+        }
+
+        db.close();
         cursor.close();
         return type_text;
     }
@@ -390,31 +372,27 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         // query the database
-        final Cursor cursor = theDatabase.query(ACTIVITY_TYPE_TABLE,
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(ACTIVITY_TYPE_TABLE,
                 new String[]{ACTIVITY_TYPE_COL_ID},
                 ACTIVITY_TYPE_COL_TEXT + " = ?", new String[]{activity.getText()},
                 null, null, null);
 
-        Integer id = null;
-        try {
-            if (cursor.moveToFirst()) {
-                try {
-                    id = Integer.parseInt(cursor.getString(0));
-                } catch (final Exception e) {
-                    Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
-                    return null;
-                }
-            } else {
-                Log.w(getClass().getSimpleName(), "No activity id found for:  " + activity.getText());
-            }
-        } catch (final SQLException e) {
-            Log.e(getClass().getSimpleName(), "Unable to process SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        } catch (final Exception e) {
-            Log.e(getClass().getSimpleName(), "Unhandled exception SQL");
-            Log.e(getClass().getSimpleName(), e.getMessage());
+        if (cursor.getCount() > 1) {
+            Log.w(getClass().getSimpleName(), "Found more than one type id for " + activity.getText());
         }
 
+        Integer id = null;
+        while (cursor.moveToNext()) {
+            try {
+                id = Integer.parseInt(cursor.getString(0));
+            } catch (final Exception e) {
+                Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
+                return null;
+            }
+        }
+
+        db.close();
         cursor.close();
         return id;
     }

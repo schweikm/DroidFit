@@ -14,7 +14,7 @@ import android.widget.ListView;
 import java.util.List;
 
 import marcschweikert.com.database.Account;
-import marcschweikert.com.database.DatabaseHelper;
+import marcschweikert.com.database.DatabaseFacade;
 
 /**
  * Created by Marc on 4/18/2015.
@@ -84,15 +84,23 @@ public class MainActivityFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
+        // pass the account to the main activity
+        final Bundle bundle = new Bundle();
+        bundle.putSerializable("account", myAccount);
+
+        Intent intent = null;
+
+        // hooray Strategy pattern!
+        DroidFitActivityCreateBehavior createBehavior = null;
+        DroidFitActivityExecuteBehavior executeBehavior = null;
+
         if (item.getItemId() == R.id.menu_main_new) {
-            final Intent intent = new Intent(getActivity(), NewActivityActivity.class);
+            intent = new Intent(getActivity(), DroidFitActivityActivity.class);
+            createBehavior = new NewActivityCreateBehavior();
+            executeBehavior = new NewActivityExecuteBehavior();
 
-            // pass the account to the main activity
-            final Bundle bundle = new Bundle();
-            bundle.putSerializable("account", myAccount);
-            intent.putExtras(bundle);
-
-            startActivity(intent);
+            bundle.putSerializable("createBehavior", createBehavior);
+            bundle.putSerializable("executeBehavior", executeBehavior);
         }
         if (item.getItemId() == R.id.menu_main_delete) {
             Log.i(getClass().getSimpleName(), "DELETE ACTIVITY " + itemSelected);
@@ -103,6 +111,9 @@ public class MainActivityFragment extends ListFragment {
         if (item.getItemId() == R.id.menu_main_details) {
             Log.i(getClass().getSimpleName(), "DETAILS ACTIVITY " + itemSelected);
         }
+
+        intent.putExtras(bundle);
+        startActivity(intent);
 
         return true;
     }
@@ -117,7 +128,7 @@ public class MainActivityFragment extends ListFragment {
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_single_choice);
 
         // pull activities from the database for the current account
-        final DatabaseHelper helper = new DatabaseHelper(getActivity());
+        final DatabaseFacade helper = new DatabaseFacade(getActivity());
         final List<DroidFitActivity> activities = helper.getUserActivities(account);
 
         for (final DroidFitActivity activity : activities) {
