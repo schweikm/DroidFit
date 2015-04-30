@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -225,8 +224,7 @@ public class NewAccountActivity extends Activity {
 
             if (success) {
                 Log.i(getClass().getSimpleName(), "Account created ... returning to login screen");
-                final Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(intent);
+                finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_account_failed));
                 mPasswordView.requestFocus();

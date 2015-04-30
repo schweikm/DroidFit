@@ -8,6 +8,8 @@ import android.os.Bundle;
  */
 public class NewActivityCreateBehavior extends DroidFitActivityCreateBehavior {
     @Override
-    public void doOnCreate(final Bundle savedInstanceState, final Activity androidActivity) {
+    public boolean doOnCreate(final Bundle savedInstanceState, final Activity androidActivity) {
+        // no special setup needed
+        return true;
     }
 }

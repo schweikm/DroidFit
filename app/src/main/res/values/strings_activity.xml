@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_new_activity">New Activity</string>
-    <string name="new_activity_submit">Submit</string>
-    <string name="new_activity_cancel">Cancel</string>
+    <string name="activity_submit">Submit</string>
+    <string name="activity_cancel">Cancel</string>
+    <string name="activity_label_type">Activity Type</string>
+    <string name="activity_label_date">Activity Date</string>
+    <string name="activity_label_distance">Activity Distance</string>
+    <string name="activity_label_duration">Activity Duration</string>
+    <string name="activity_error_no_distance">Provide a distance</string>
 </resources>

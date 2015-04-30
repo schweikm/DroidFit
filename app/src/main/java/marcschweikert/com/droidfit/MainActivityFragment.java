@@ -112,6 +112,11 @@ public class MainActivityFragment extends ListFragment {
             Log.i(getClass().getSimpleName(), "DETAILS ACTIVITY " + itemSelected);
         }
 
+        if (null == intent) {
+            Log.e(getClass().getSimpleName(), "No intent to execute!");
+            return false;
+        }
+
         intent.putExtras(bundle);
         startActivity(intent);
 

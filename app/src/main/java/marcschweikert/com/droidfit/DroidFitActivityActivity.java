@@ -41,27 +41,29 @@ public class DroidFitActivityActivity extends Activity {
 
 
         // populate the spinner
-        final Spinner typeSpinner = (Spinner) findViewById(R.id.new_activity_spinner);
+        final Spinner typeSpinner = (Spinner) findViewById(R.id.activity_spinner);
         final DatabaseFacade helper = new DatabaseFacade(getApplicationContext());
         final List<String> activityList = helper.getActivityTypes();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, activityList);
         typeSpinner.setAdapter(adapter);
 
         // remove am / pm from picker
-        final TimePicker duration = (TimePicker) findViewById(R.id.new_activity_duration);
+        final TimePicker duration = (TimePicker) findViewById(R.id.activity_duration);
         duration.setIs24HourView(true);
 
         // setup the "action" button
-        final Button submitButton = (Button) findViewById(R.id.new_activity_submit_button);
+        final Button submitButton = (Button) findViewById(R.id.activity_submit_button);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount);
+                if (true == myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount)) {
+                    finish();
+                }
             }
         });
 
         // setup the cancel button
-        final Button cancelButton = (Button) findViewById(R.id.new_activity_cancel_button);
+        final Button cancelButton = (Button) findViewById(R.id.activity_cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

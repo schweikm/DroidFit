@@ -9,20 +9,21 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import marcschweikert.com.database.Account;
+import marcschweikert.com.database.DatabaseFacade;
 import marcschweikert.com.utils.DateUtils;
 
 /**
  * Created by Marc on 4/26/2015.
  */
 public class NewActivityExecuteBehavior extends DroidFitActivityExecuteBehavior {
-    public void doOnExecute(final Bundle savedInstanceState, final Activity androidActivity, final Account account) {
+    public boolean doOnExecute(final Bundle savedInstanceState, final Activity androidActivity, final Account account) {
         Log.i(getClass().getSimpleName(), "creating activity for " + account.getEmail());
 
         // UI references
-        final Spinner typeSpinner = (Spinner) androidActivity.findViewById(R.id.new_activity_spinner);
-        final DatePicker date = (DatePicker) androidActivity.findViewById(R.id.new_activity_date);
-        final EditText distance = (EditText) androidActivity.findViewById(R.id.new_activity_distance);
-        final TimePicker duration = (TimePicker) androidActivity.findViewById(R.id.new_activity_duration);
+        final Spinner typeSpinner = (Spinner) androidActivity.findViewById(R.id.activity_spinner);
+        final DatePicker date = (DatePicker) androidActivity.findViewById(R.id.activity_date);
+        final EditText distance = (EditText) androidActivity.findViewById(R.id.activity_distance);
+        final TimePicker duration = (TimePicker) androidActivity.findViewById(R.id.activity_duration);
 
         // cannot be null
         final String activityType = typeSpinner.getSelectedItem().toString();
@@ -35,7 +36,8 @@ public class NewActivityExecuteBehavior extends DroidFitActivityExecuteBehavior 
             activityDistance = Double.parseDouble(distance.getText().toString());
         } catch (final Exception e) {
             Log.e(getClass().getSimpleName(), "Failed to parse distance for create activity " + e.getMessage());
-            return;
+            distance.setError(androidActivity.getString(R.string.activity_error_no_distance));
+            return false;
         }
 
         // create the activity instance
@@ -49,14 +51,9 @@ public class NewActivityExecuteBehavior extends DroidFitActivityExecuteBehavior 
         activity.setDistance(activityDistance);
         activity.setDuration(DateUtils.convertStringToCalendar(activityDuration));
 
-        Log.i(getClass().getSimpleName(), activity.toString());
-/*
-        final DatabaseFacade helper = new DatabaseFacade(getApplicationContext());
-        final DroidFitActivity activity = new DroidFitActivityRunning(getApplicationContext(),
-                new GregorianCalendar(2015, 01, 01, 12, 00, 00),
-                13.1,
-                new GregorianCalendar(1970, 01, 01, 01, 58, 21));
-        helper.insertActivity(myAccount, activity);
-*/
+        Log.d(getClass().getSimpleName(), "inserting activity for " + account.getEmail() + ":  " + activity.toString());
+
+        final DatabaseFacade helper = new DatabaseFacade(androidActivity);
+        return helper.insertActivity(account, activity);
     }
 }

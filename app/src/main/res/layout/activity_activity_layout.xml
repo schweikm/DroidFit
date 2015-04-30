@@ -1,49 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/new_activity_sub_form"
+    android:id="@+id/activity_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/new_activity_spinner"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/activity_scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent">
 
-    <DatePicker
-        android:id="@+id/new_activity_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:calendarViewShown="false" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/activity_sub_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/new_activity_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="numberDecimal" />
+            <TextView
+                android:id="@+id/activity_label_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_label_type"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TimePicker
-        android:id="@+id/new_activity_duration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <Spinner
+                android:id="@+id/activity_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/new_activity_submit_button"
-        style="?android:textAppearanceSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/new_activity_submit"
-        android:textStyle="bold" />
+            <TextView
+                android:id="@+id/activity_label_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_label_date"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/new_activity_cancel_button"
-        style="?android:textAppearanceSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/new_activity_cancel"
-        android:textStyle="bold" />
+            <DatePicker
+                android:id="@+id/activity_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false" />
 
+            <TextView
+                android:id="@+id/activity_label_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_label_distance"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <EditText
+                android:id="@+id/activity_distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                android:id="@+id/activity_label_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_label_duration"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TimePicker
+                android:id="@+id/activity_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/activity_submit_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/activity_submit"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/activity_cancel_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/activity_cancel"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

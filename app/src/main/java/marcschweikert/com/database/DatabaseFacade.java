@@ -294,7 +294,7 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
 
         while (cursor.moveToNext()) {
             // not sure how to create the activity - time for a factory!
-            final DroidFitActivity activity = DroidFitActivityFactory.createActivityByName(myContext, cursor.getString(0));
+            final DroidFitActivity activity = DroidFitActivityFactory.createActivityByID(myContext, cursor.getInt(0));
 
             if (null == activity) {
                 Log.e(getClass().getSimpleName(), "Activity factory returned null activity!");

@@ -9,5 +9,5 @@ import java.io.Serializable;
  * Created by Marc on 4/26/2015.
  */
 public abstract class DroidFitActivityCreateBehavior implements Serializable {
-    public abstract void doOnCreate(final Bundle savedInstanceState, final Activity androidActivity);
+    public abstract boolean doOnCreate(final Bundle savedInstanceState, final Activity androidActivity);
 }
