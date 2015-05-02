@@ -56,8 +56,10 @@ public class DroidFitActivityActivity extends Activity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if (true == myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount)) {
-                    finish();
+                if (null != myExecuteBehavior) {
+                    if (true == myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount)) {
+                        finish();
+                    }
                 }
             }
         });
@@ -77,6 +79,9 @@ public class DroidFitActivityActivity extends Activity {
         //
 
 
-        myCreateBehavior.doOnCreate(bundle, this);
+        if (null != myCreateBehavior) {
+            myCreateBehavior.doOnCreate(bundle, this);
+        }
+
     }
 }

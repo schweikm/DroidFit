@@ -22,11 +22,11 @@ import marcschweikert.com.database.DatabaseFacade;
 public class MainActivityFragment extends ListFragment {
     private int itemSelected = -1;
     private Account myAccount;
+    private List<DroidFitActivity> myActivities;
 
     @Override
     public void onResume() {
         super.onResume();
-        //TODO: get current user's activities
         setListAdapter(getAllActivities(myAccount));
     }
 
@@ -64,19 +64,21 @@ public class MainActivityFragment extends ListFragment {
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        final MenuItem deleteMI = menu.findItem(R.id.menu_main_delete);
-        final MenuItem editMI = menu.findItem(R.id.menu_main_edit);
+
+        // UI references
         final MenuItem newMI = menu.findItem(R.id.menu_main_new);
+        final MenuItem editMI = menu.findItem(R.id.menu_main_edit);
         final MenuItem detailsMI = menu.findItem(R.id.menu_main_details);
+        final MenuItem logoutMI = menu.findItem(R.id.menu_main_logout);
+
+        // these are always enabled
+        newMI.setEnabled(true);
+        logoutMI.setEnabled(true);
 
         if (itemSelected != -1) {
-            deleteMI.setEnabled(true);
             editMI.setEnabled(true);
             detailsMI.setEnabled(true);
-            newMI.setEnabled(true);
         } else {
-            newMI.setEnabled(true);
-            deleteMI.setEnabled(false);
             editMI.setEnabled(false);
             detailsMI.setEnabled(false);
         }
@@ -84,39 +86,46 @@ public class MainActivityFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        // pass the account to the main activity
-        final Bundle bundle = new Bundle();
-        bundle.putSerializable("account", myAccount);
+        // logout is easy
+        if (item.getItemId() == R.id.menu_main_logout) {
+            // make sure values are invalidated
+            itemSelected = -1;
+            myAccount = null;
+            myActivities = null;
 
-        Intent intent = null;
+            // start the login screen
+            final Intent intent = new Intent(getActivity(), LoginActivity.class);
+
+            // we're done here
+            getActivity().finish();
+            return true;
+        }
+
+        // other types will launch a new activity
+        final Bundle bundle = new Bundle();
+        final Intent intent = new Intent(getActivity(), DroidFitActivityActivity.class);
 
         // hooray Strategy pattern!
         DroidFitActivityCreateBehavior createBehavior = null;
         DroidFitActivityExecuteBehavior executeBehavior = null;
 
         if (item.getItemId() == R.id.menu_main_new) {
-            intent = new Intent(getActivity(), DroidFitActivityActivity.class);
-            createBehavior = new NewActivityCreateBehavior();
+            // no create behavior
             executeBehavior = new NewActivityExecuteBehavior();
-
-            bundle.putSerializable("createBehavior", createBehavior);
-            bundle.putSerializable("executeBehavior", executeBehavior);
-        }
-        if (item.getItemId() == R.id.menu_main_delete) {
-            Log.i(getClass().getSimpleName(), "DELETE ACTIVITY " + itemSelected);
-        }
-        if (item.getItemId() == R.id.menu_main_edit) {
-            Log.i(getClass().getSimpleName(), "EDIT ACTIVITY " + itemSelected);
-        }
-        if (item.getItemId() == R.id.menu_main_details) {
-            Log.i(getClass().getSimpleName(), "DETAILS ACTIVITY " + itemSelected);
+        } else if (item.getItemId() == R.id.menu_main_edit) {
+            createBehavior = new EditActivityCreateBehavior();
+            executeBehavior = new EditActivityExecuteBehavior();
+            intent.putExtra("activityID", myActivities.get(itemSelected).getID());
+        } else if (item.getItemId() == R.id.menu_main_details) {
+            createBehavior = new ViewActivityCreateBehavior();
+            // no execute behavior
+            intent.putExtra("activityID", myActivities.get(itemSelected).getID());
         }
 
-        if (null == intent) {
-            Log.e(getClass().getSimpleName(), "No intent to execute!");
-            return false;
-        }
-
+        // pass the account to the main activity
+        bundle.putSerializable("account", myAccount);
+        bundle.putSerializable("createBehavior", createBehavior);
+        bundle.putSerializable("executeBehavior", executeBehavior);
         intent.putExtras(bundle);
         startActivity(intent);
 
@@ -134,9 +143,9 @@ public class MainActivityFragment extends ListFragment {
 
         // pull activities from the database for the current account
         final DatabaseFacade helper = new DatabaseFacade(getActivity());
-        final List<DroidFitActivity> activities = helper.getUserActivities(account);
+        myActivities = helper.getUserActivities(account);
 
-        for (final DroidFitActivity activity : activities) {
+        for (final DroidFitActivity activity : myActivities) {
             adapter.add(activity.getText());
         }
 

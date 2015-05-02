@@ -13,6 +13,7 @@ import marcschweikert.com.utils.DateUtils;
  */
 public abstract class DroidFitActivity {
     private Context myContext;
+    private Integer myID;
     private Calendar myDate;
     private Double myDistance;
     private Calendar myDuration;
@@ -36,6 +37,10 @@ public abstract class DroidFitActivity {
         final StringBuilder builder = new StringBuilder();
         builder.append("\n--------------------\n");
         builder.append("Type:  " + getText() + "\n");
+
+        if (null != myID) {
+            builder.append("ID  :  " + getID());
+        }
 
         if (null != myDate) {
             builder.append("Date:  " + DateUtils.formatDateTime(myDate) + "\n");
@@ -63,6 +68,14 @@ public abstract class DroidFitActivity {
     // provide access to application context to subclasses
     protected Context getContext() {
         return myContext;
+    }
+
+    public Integer getID() {
+        return myID;
+    }
+
+    public void setID(final Integer id) {
+        myID = id;
     }
 
     public Calendar getDate() {

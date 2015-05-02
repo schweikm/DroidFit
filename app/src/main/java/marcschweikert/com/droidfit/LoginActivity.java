@@ -27,33 +27,35 @@ public class LoginActivity extends Activity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UserLoginTask myAuthTask = null;
 
     // UI references.
-    private EditText mEmailView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    private EditText myEmailView;
+    private EditText myPasswordView;
+    private View myProgressView;
+    private View myLoginFormView;
+    private Button mySignInButton;
+    private Button myNewAccountButton;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Set up the login form.
-        mEmailView = (EditText) findViewById(R.id.email);
-        mPasswordView = (EditText) findViewById(R.id.password);
+        // UI references
+        myEmailView = (EditText) findViewById(R.id.email);
+        myPasswordView = (EditText) findViewById(R.id.password);
+        mySignInButton = (Button) findViewById(R.id.login_button);
+        myNewAccountButton = (Button) findViewById(R.id.new_account_button);
 
-        final Button mSignInButton = (Button) findViewById(R.id.login_button);
-        mSignInButton.setOnClickListener(new OnClickListener() {
+        mySignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View view) {
                 attemptLogin();
             }
         });
 
-        final Button newAccountButton = (Button) findViewById(R.id.new_account_button);
-        newAccountButton.setOnClickListener(new OnClickListener() {
+        myNewAccountButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
                 final Intent intent = new Intent(getApplicationContext(), NewAccountActivity.class);
@@ -61,8 +63,8 @@ public class LoginActivity extends Activity {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        myLoginFormView = findViewById(R.id.login_form);
+        myProgressView = findViewById(R.id.login_progress);
     }
 
     /**
@@ -71,40 +73,40 @@ public class LoginActivity extends Activity {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
+        if (myAuthTask != null) {
             return;
         }
 
         // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
+        myEmailView.setError(null);
+        myPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        final String email = mEmailView.getText().toString();
-        final String password = mPasswordView.getText().toString();
+        final String email = myEmailView.getText().toString();
+        final String password = myPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            myEmailView.setError(getString(R.string.error_field_required));
+            focusView = myEmailView;
             cancel = true;
         } else if (!ValidatorUtils.isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+            myEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = myEmailView;
             cancel = true;
         }
 
         // Check for a valid password
         if (TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
+            myPasswordView.setError(getString(R.string.error_field_required));
+            focusView = myPasswordView;
             cancel = true;
         } else if (!ValidatorUtils.isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+            myPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = myPasswordView;
             cancel = true;
         }
 
@@ -119,8 +121,8 @@ public class LoginActivity extends Activity {
             final String hashedPassword = CryptoFacade.getInstance().hashPassword(password);
 
             final Account account = new Account(null, null, email, hashedPassword);
-            mAuthTask = new UserLoginTask(account);
-            mAuthTask.execute((Void) null);
+            myAuthTask = new UserLoginTask(account);
+            myAuthTask.execute((Void) null);
         }
     }
 
@@ -135,28 +137,28 @@ public class LoginActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+            myLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            myLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    myLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
+            myProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            myProgressView.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    myProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            myProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            myLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -201,28 +203,32 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+            myAuthTask = null;
             showProgress(false);
 
             if (success) {
                 Log.d(getClass().getSimpleName(), "Launching main application for " + myAccount.getEmail());
-                final Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+                // null the entries
+                myEmailView.setText("");
+                myPasswordView.setText("");
 
                 // pass the account to the main activity
+                final Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 final Bundle bundle = new Bundle();
                 bundle.putSerializable("account", myAccount);
                 intent.putExtras(bundle);
 
                 startActivity(intent);
             } else {
-                mPasswordView.setError(getString(R.string.error_login_failed));
-                mPasswordView.requestFocus();
+                myPasswordView.setError(getString(R.string.error_login_failed));
+                myPasswordView.requestFocus();
             }
         }
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+            myAuthTask = null;
             showProgress(false);
         }
     }

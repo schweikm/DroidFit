@@ -175,7 +175,7 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
         // query the database
         final SQLiteDatabase db = getReadableDatabase();
         final Cursor cursor = db.query(PROFILE_TABLE,
-                new String[]{PROFILE_COL_FIRST_NAME, PROFILE_COL_LAST_NAME, PROFILE_COL_EMAIL, PROFILE_COL_PASS},
+                new String[]{PROFILE_COL_ID, PROFILE_COL_FIRST_NAME, PROFILE_COL_LAST_NAME, PROFILE_COL_EMAIL, PROFILE_COL_PASS},
                 PROFILE_COL_EMAIL + " = ?", new String[]{email},
                 null, null, null);
 
@@ -186,46 +186,17 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
         Account account = null;
         while (cursor.moveToNext()) {
             Log.i(getClass().getSimpleName(), "Found account for " + email);
-            account = new Account(cursor.getString(0),
-                    cursor.getString(1),
+            account = new Account(cursor.getString(1),
                     cursor.getString(2),
-                    cursor.getString(3));
+                    cursor.getString(3),
+                    cursor.getString(4));
+
+            account.setID(cursor.getInt(0));
         }
 
         db.close();
         cursor.close();
         return account;
-    }
-
-    public Integer getAccountID(final String email) {
-        if (null == email || email.isEmpty()) {
-            Log.e(getClass().getSimpleName(), "Attempted to retrieve id of null account");
-            return null;
-        }
-
-        // query the database
-        final SQLiteDatabase db = getReadableDatabase();
-        final Cursor cursor = db.query(PROFILE_TABLE,
-                new String[]{PROFILE_COL_ID},
-                PROFILE_COL_EMAIL + " = ?", new String[]{email},
-                null, null, null);
-
-        if (cursor.getCount() > 1) {
-            Log.w(getClass().getSimpleName(), "Found more than one account ID for " + email);
-        }
-
-        Integer id = null;
-        while (cursor.moveToNext()) {
-            try {
-                id = Integer.parseInt(cursor.getString(0));
-            } catch (final Exception e) {
-                Log.e(getClass().getSimpleName(), "Failed to convert id " + cursor.getString(0) + " to int");
-            }
-        }
-
-        db.close();
-        cursor.close();
-        return id;
     }
 
 
@@ -240,11 +211,6 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
             return false;
         }
 
-        final Integer account_id = getAccountID(account.getEmail());
-        if (null == account_id) {
-            Log.e(getClass().getSimpleName(), "Retrieved null account id for " + account.getEmail());
-            return false;
-        }
 
         final Integer type_id = getActivityTypeID(activity);
         if (null == type_id) {
@@ -254,7 +220,7 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
 
         Log.i(getClass().getName(), "Inserting activity for :  " + account.getEmail());
         final ContentValues values = new ContentValues();
-        values.put(ACTIVITY_COL_USER_ID, account_id);
+        values.put(ACTIVITY_COL_USER_ID, account.getID());
         values.put(ACTIVITY_COL_TYPE_ID, type_id);
         values.put(ACTIVITY_COL_DATE, DateUtils.formatDateTime(activity.getDate()));
         values.put(ACTIVITY_COL_DISTANCE, activity.getDistance());
@@ -269,6 +235,37 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
         return true;
     }
 
+    public boolean updateActivity(final Account account, final DroidFitActivity activity) {
+        if (null == account || null == activity) {
+            Log.e(getClass().getSimpleName(), "Attempted to insert activity for either null account or activity");
+            return false;
+        }
+
+        // remove the database activity
+        if (false == deleteActivity(activity)) {
+            Log.e(getClass().getSimpleName(), "Failed to remove activity");
+            return false;
+        }
+        // and now insert a "new" activity
+        if (false == insertActivity(account, activity)) {
+            Log.e(getClass().getSimpleName(), "Failed to insert activity");
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteActivity(final DroidFitActivity activity) {
+        if (null == activity) {
+            Log.e(getClass().getSimpleName(), "Attempted to query for null activity");
+            return false;
+        }
+
+        final SQLiteDatabase db = getWritableDatabase();
+        db.delete(ACTIVITY_TABLE, ACTIVITY_COL_ID + " = ?", new String[]{activity.getID().toString()});
+        return true;
+    }
+
     public List<DroidFitActivity> getUserActivities(final Account account) {
         if (null == account) {
             Log.e(getClass().getSimpleName(), "Attempted to query for null account");
@@ -277,24 +274,18 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
 
         final List<DroidFitActivity> list = new ArrayList<>();
 
-        final Integer account_id = getAccountID(account.getEmail());
-        if (null == account_id) {
-            Log.e(getClass().getSimpleName(), "Retrieved null account id for " + account.getEmail());
-            return list;
-        }
-
         // query the database
         final SQLiteDatabase db = getReadableDatabase();
         final Cursor cursor = db.query(ACTIVITY_TABLE,
-                new String[]{ACTIVITY_COL_TYPE_ID, ACTIVITY_COL_DATE, ACTIVITY_COL_DISTANCE, ACTIVITY_COL_DURATION},
-                ACTIVITY_COL_USER_ID + " = ?", new String[]{(account_id).toString()},
+                new String[]{ACTIVITY_COL_ID, ACTIVITY_COL_TYPE_ID, ACTIVITY_COL_DATE, ACTIVITY_COL_DISTANCE, ACTIVITY_COL_DURATION},
+                ACTIVITY_COL_USER_ID + " = ?", new String[]{(account.getID()).toString()},
                 null, null, null);
 
         Log.i(getClass().getSimpleName(), "Found " + cursor.getCount() + " activities for " + account.getEmail());
 
         while (cursor.moveToNext()) {
             // not sure how to create the activity - time for a factory!
-            final DroidFitActivity activity = DroidFitActivityFactory.createActivityByID(myContext, cursor.getInt(0));
+            final DroidFitActivity activity = DroidFitActivityFactory.createActivityByID(myContext, cursor.getInt(1));
 
             if (null == activity) {
                 Log.e(getClass().getSimpleName(), "Activity factory returned null activity!");
@@ -302,9 +293,10 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
             }
 
             // now set the other attributes
-            activity.setDate(DateUtils.convertStringToCalendar(cursor.getString(1)));
-            activity.setDistance(cursor.getDouble(2));
-            activity.setDuration(DateUtils.convertStringToCalendar(cursor.getString(3)));
+            activity.setID(cursor.getInt(0));
+            activity.setDate(DateUtils.convertStringToCalendar(cursor.getString(2)));
+            activity.setDistance(cursor.getDouble(3));
+            activity.setDuration(DateUtils.convertStringToCalendar(cursor.getString(4)));
 
             list.add(activity);
         }
@@ -312,6 +304,41 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
         db.close();
         cursor.close();
         return list;
+    }
+
+    public DroidFitActivity getActivityByID(final Integer activity_id) {
+        if (null == activity_id) {
+            Log.e(getClass().getSimpleName(), "Attempted to query for null activity_id");
+            return null;
+        }
+
+        // query the database
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(ACTIVITY_TABLE,
+                new String[]{ACTIVITY_COL_ID, ACTIVITY_COL_TYPE_ID, ACTIVITY_COL_DATE, ACTIVITY_COL_DISTANCE, ACTIVITY_COL_DURATION},
+                ACTIVITY_COL_ID + " = ?", new String[]{(activity_id).toString()},
+                null, null, null);
+
+        DroidFitActivity activity = null;
+        while (cursor.moveToNext()) {
+            // not sure how to create the activity - time for a factory!
+            activity = DroidFitActivityFactory.createActivityByID(myContext, cursor.getInt(1));
+
+            if (null == activity) {
+                Log.e(getClass().getSimpleName(), "Activity factory returned null activity!");
+                continue;
+            }
+
+            // now set the other attributes
+            activity.setID(cursor.getInt(0));
+            activity.setDate(DateUtils.convertStringToCalendar(cursor.getString(2)));
+            activity.setDistance(cursor.getDouble(3));
+            activity.setDuration(DateUtils.convertStringToCalendar(cursor.getString(4)));
+        }
+
+        db.close();
+        cursor.close();
+        return activity;
     }
 
 

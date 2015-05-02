@@ -5,6 +5,7 @@
     <string name="menu_delete_activity">Delete</string>
     <string name="menu_edit_activity">Edit</string>
     <string name="menu_details_activity">Details</string>
+    <string name="menu_logout_activity">Logout</string>
 
     <string name="main_no_activities">No Activities</string>
 </resources>

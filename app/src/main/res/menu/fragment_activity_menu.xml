@@ -4,12 +4,12 @@
         android:id="@+id/menu_main_new"
         android:title="@string/menu_new_activity" />
     <item
-        android:id="@+id/menu_main_delete"
-        android:title="@string/menu_delete_activity" />
-    <item
         android:id="@+id/menu_main_edit"
         android:title="@string/menu_edit_activity" />
     <item
         android:id="@+id/menu_main_details"
         android:title="@string/menu_details_activity" />
+    <item
+        android:id="@+id/menu_main_logout"
+        android:title="@string/menu_logout_activity" />
 </menu>
