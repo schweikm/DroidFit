@@ -17,7 +17,10 @@ import marcschweikert.com.utils.DateUtils;
  */
 public class NewActivityExecuteBehavior extends DroidFitActivityExecuteBehavior {
     @Override
-    public boolean doOnExecute(final Bundle savedInstanceState, final Activity androidActivity, final Account account) {
+    public boolean doOnExecute(final Bundle savedInstanceState,
+                               final Activity androidActivity,
+                               final Account account,
+                               final DroidFitActivity activity) {
         Log.i(getClass().getSimpleName(), "creating activity for " + account.getEmail());
 
         // UI references
@@ -42,19 +45,19 @@ public class NewActivityExecuteBehavior extends DroidFitActivityExecuteBehavior 
         }
 
         // create the activity instance
-        final DroidFitActivity activity = DroidFitActivityFactory.createActivityByName(androidActivity, activityType);
-        if (null == activity) {
+        final DroidFitActivity newActivity = DroidFitActivityFactory.createActivityByName(androidActivity, activityType);
+        if (null == newActivity) {
             Log.e(getClass().getSimpleName(), "Failed to create activity instance!");
         }
 
         // then set the other attributes
-        activity.setDate(DateUtils.convertStringToCalendar(activityDate));
-        activity.setDistance(activityDistance);
-        activity.setDuration(DateUtils.convertStringToCalendar(activityDuration));
+        newActivity.setDate(DateUtils.convertStringToCalendar(activityDate));
+        newActivity.setDistance(activityDistance);
+        newActivity.setDuration(DateUtils.convertStringToCalendar(activityDuration));
 
-        Log.d(getClass().getSimpleName(), "inserting activity for " + account.getEmail() + ":  " + activity.toString());
+        Log.d(getClass().getSimpleName(), "inserting activity for " + account.getEmail() + ":  " + newActivity.toString());
 
         final DatabaseFacade helper = new DatabaseFacade(androidActivity);
-        return helper.insertActivity(account, activity);
+        return helper.insertActivity(account, newActivity);
     }
 }

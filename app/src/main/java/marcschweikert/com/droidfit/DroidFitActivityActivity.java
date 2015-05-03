@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
@@ -20,6 +21,7 @@ public class DroidFitActivityActivity extends Activity {
     private DroidFitActivityCreateBehavior myCreateBehavior;
     private DroidFitActivityExecuteBehavior myExecuteBehavior;
     private Account myAccount;
+    private DroidFitActivity myActivity;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -29,6 +31,9 @@ public class DroidFitActivityActivity extends Activity {
         // get the account from the intent
         final Bundle bundle = getIntent().getExtras();
         myAccount = (Account) bundle.getSerializable("account");
+
+        // get the activity from the intent
+        myActivity = (DroidFitActivity) bundle.getSerializable("activity");
 
         // get the behaviors from the intent
         myCreateBehavior = (DroidFitActivityCreateBehavior) bundle.getSerializable("createBehavior");
@@ -47,9 +52,17 @@ public class DroidFitActivityActivity extends Activity {
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, activityList);
         typeSpinner.setAdapter(adapter);
 
+        // default to 0 distance
+        final EditText distance = (EditText) findViewById(R.id.activity_distance);
+        distance.setText("0.0");
+
         // remove am / pm from picker
         final TimePicker duration = (TimePicker) findViewById(R.id.activity_duration);
         duration.setIs24HourView(true);
+
+        // also default to 00:00
+        duration.setCurrentHour(0);
+        duration.setCurrentMinute(0);
 
         // setup the "action" button
         final Button submitButton = (Button) findViewById(R.id.activity_submit_button);
@@ -57,7 +70,7 @@ public class DroidFitActivityActivity extends Activity {
             @Override
             public void onClick(final View view) {
                 if (null != myExecuteBehavior) {
-                    if (true == myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount)) {
+                    if (true == myExecuteBehavior.doOnExecute(bundle, DroidFitActivityActivity.this, myAccount, myActivity)) {
                         finish();
                     }
                 }
@@ -80,7 +93,7 @@ public class DroidFitActivityActivity extends Activity {
 
 
         if (null != myCreateBehavior) {
-            myCreateBehavior.doOnCreate(bundle, this);
+            myCreateBehavior.doOnCreate(bundle, this, myAccount, myActivity);
         }
 
     }

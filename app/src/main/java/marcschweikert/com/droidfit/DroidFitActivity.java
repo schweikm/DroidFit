@@ -1,8 +1,6 @@
 package marcschweikert.com.droidfit;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 
@@ -11,22 +9,18 @@ import marcschweikert.com.utils.DateUtils;
 /**
  * Created by Marc on 4/18/2015.
  */
-public abstract class DroidFitActivity {
-    private Context myContext;
+public abstract class DroidFitActivity implements Serializable {
     private Integer myID;
     private Calendar myDate;
     private Double myDistance;
     private Calendar myDuration;
 
-    public DroidFitActivity(final Context context) {
-        myContext = context;
+    public DroidFitActivity() {
     }
 
-    public DroidFitActivity(final Context context,
-                            final Calendar date,
+    public DroidFitActivity(final Calendar date,
                             final Double distance,
                             final Calendar duration) {
-        myContext = context;
         myDate = date;
         myDistance = distance;
         myDuration = duration;
@@ -62,13 +56,6 @@ public abstract class DroidFitActivity {
 
     // abstract class methods
     public abstract String getText();
-
-    public abstract Bitmap getImage();
-
-    // provide access to application context to subclasses
-    protected Context getContext() {
-        return myContext;
-    }
 
     public Integer getID() {
         return myID;

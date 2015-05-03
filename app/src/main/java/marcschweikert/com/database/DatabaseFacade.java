@@ -235,34 +235,26 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean updateActivity(final Account account, final DroidFitActivity activity) {
-        if (null == account || null == activity) {
-            Log.e(getClass().getSimpleName(), "Attempted to insert activity for either null account or activity");
-            return false;
-        }
-
-        // remove the database activity
-        if (false == deleteActivity(activity)) {
-            Log.e(getClass().getSimpleName(), "Failed to remove activity");
-            return false;
-        }
-        // and now insert a "new" activity
-        if (false == insertActivity(account, activity)) {
-            Log.e(getClass().getSimpleName(), "Failed to insert activity");
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean deleteActivity(final DroidFitActivity activity) {
+    public boolean updateActivity(final DroidFitActivity activity) {
         if (null == activity) {
-            Log.e(getClass().getSimpleName(), "Attempted to query for null activity");
+            Log.e(getClass().getSimpleName(), "Attempted to update null activity");
             return false;
         }
 
-        final SQLiteDatabase db = getWritableDatabase();
-        db.delete(ACTIVITY_TABLE, ACTIVITY_COL_ID + " = ?", new String[]{activity.getID().toString()});
+        // updated attributes
+        final ContentValues values = new ContentValues();
+        values.put(ACTIVITY_COL_DATE, DateUtils.formatDateTime(activity.getDate()));
+        values.put(ACTIVITY_COL_DISTANCE, activity.getDistance());
+        values.put(ACTIVITY_COL_DURATION, DateUtils.formatDateTime(activity.getDuration()));
+
+        // update the database
+        try (final SQLiteDatabase db = getWritableDatabase()) {
+            db.update(ACTIVITY_TABLE, values, ACTIVITY_COL_ID + " = ?",
+                    new String[]{String.valueOf(activity.getID())});
+        } catch (final Exception e) {
+            return false;
+        }
+
         return true;
     }
 

@@ -29,11 +29,11 @@ public class DroidFitActivityFactory {
         DroidFitActivity activity = null;
 
         if (context.getResources().getString(R.string.activity_type_cycling).equals(type_str)) {
-            activity = new DroidFitActivityCycling(context);
+            activity = new DroidFitActivityCycling();
         } else if (context.getResources().getString(R.string.activity_type_running).equals(type_str)) {
-            activity = new DroidFitActivityRunning(context);
+            activity = new DroidFitActivityRunning();
         } else if (context.getResources().getString(R.string.activity_type_swimming).equals(type_str)) {
-            activity = new DroidFitActivityRunning(context);
+            activity = new DroidFitActivityRunning();
         } else {
             Log.e("DroidFitActivityFactory", "Could not find activity to create!");
         }

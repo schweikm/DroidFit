@@ -12,27 +12,25 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 
-import marcschweikert.com.database.DatabaseFacade;
+import marcschweikert.com.database.Account;
 
 /**
  * Created by Marc on 4/30/2015.
  */
 public class EditActivityCreateBehavior extends DroidFitActivityCreateBehavior {
     @Override
-    public boolean doOnCreate(final Bundle savedInstanceState, final Activity androidActivity) {
+    public boolean doOnCreate(final Bundle savedInstanceState,
+                              final Activity androidActivity,
+                              final Account account,
+                              final DroidFitActivity activity) {
         // UI references
         final Spinner typeSpinner = (Spinner) androidActivity.findViewById(R.id.activity_spinner);
         final DatePicker date = (DatePicker) androidActivity.findViewById(R.id.activity_date);
         final EditText distance = (EditText) androidActivity.findViewById(R.id.activity_distance);
         final TimePicker duration = (TimePicker) androidActivity.findViewById(R.id.activity_duration);
 
-        // get the activity ID from the intent
-        final Bundle bundle = androidActivity.getIntent().getExtras();
-        final Integer activity_id = bundle.getInt("activityID");
-
-        // get the activity from the database
-        final DatabaseFacade helper = new DatabaseFacade(androidActivity);
-        final DroidFitActivity activity = helper.getActivityByID(activity_id);
+        // we can't change the activity type
+        typeSpinner.setEnabled(false);
 
         Log.d(getClass().getSimpleName(), "populating activity for view:  " + activity);
 

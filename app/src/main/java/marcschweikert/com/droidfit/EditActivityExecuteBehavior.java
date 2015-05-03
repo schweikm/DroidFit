@@ -17,7 +17,10 @@ import marcschweikert.com.utils.DateUtils;
  */
 public class EditActivityExecuteBehavior extends DroidFitActivityExecuteBehavior {
     @Override
-    public boolean doOnExecute(final Bundle savedInstanceState, final Activity androidActivity, final Account account) {
+    public boolean doOnExecute(final Bundle savedInstanceState,
+                               final Activity androidActivity,
+                               final Account account,
+                               final DroidFitActivity activity) {
         Log.d(getClass().getSimpleName(), "Editing activity for " + account.getEmail());
 
         // UI references
@@ -32,7 +35,7 @@ public class EditActivityExecuteBehavior extends DroidFitActivityExecuteBehavior
         final String activityDuration = DateUtils.formatTime(duration.getCurrentHour(), duration.getCurrentMinute(), 0);
 
         // may be null
-        Double activityDistance = 0.0;
+        Double activityDistance = -99.0;
         try {
             activityDistance = Double.parseDouble(distance.getText().toString());
         } catch (final Exception e) {
@@ -41,18 +44,12 @@ public class EditActivityExecuteBehavior extends DroidFitActivityExecuteBehavior
             return false;
         }
 
-        // create the activity instance
-        final DroidFitActivity activity = DroidFitActivityFactory.createActivityByName(androidActivity, activityType);
-        if (null == activity) {
-            Log.e(getClass().getSimpleName(), "Failed to create activity instance!");
-        }
-
-        // then set the other attributes
+        // update the attributes
         activity.setDate(DateUtils.convertStringToCalendar(activityDate));
         activity.setDistance(activityDistance);
         activity.setDuration(DateUtils.convertStringToCalendar(activityDuration));
 
         final DatabaseFacade helper = new DatabaseFacade(androidActivity);
-        return helper.insertActivity(account, activity);
+        return helper.updateActivity(activity);
     }
 }

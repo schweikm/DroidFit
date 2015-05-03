@@ -48,6 +48,10 @@ public class NewAccountActivity extends Activity {
         myLastNameView = (EditText) findViewById(R.id.new_last_name);
         myEmailView = (EditText) findViewById(R.id.new_email);
         myPasswordView = (EditText) findViewById(R.id.new_password);
+        myNewAccountFormView = findViewById(R.id.new_account_form);
+        myProgressView = findViewById(R.id.new_account_progress);
+        mySubmitButton = (Button) findViewById(R.id.new_submit_button);
+        myCancelButton = (Button) findViewById(R.id.new_cancel_button);
 
         mySubmitButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -62,9 +66,6 @@ public class NewAccountActivity extends Activity {
                 finish();
             }
         });
-
-        myNewAccountFormView = findViewById(R.id.new_account_form);
-        myProgressView = findViewById(R.id.new_account_progress);
     }
 
     /**

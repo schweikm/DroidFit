@@ -105,6 +105,11 @@ public class MainActivityFragment extends ListFragment {
         final Bundle bundle = new Bundle();
         final Intent intent = new Intent(getActivity(), DroidFitActivityActivity.class);
 
+        DroidFitActivity activity = null;
+        if (itemSelected >= 0) {
+            activity = myActivities.get(itemSelected);
+        }
+
         // hooray Strategy pattern!
         DroidFitActivityCreateBehavior createBehavior = null;
         DroidFitActivityExecuteBehavior executeBehavior = null;
@@ -115,15 +120,14 @@ public class MainActivityFragment extends ListFragment {
         } else if (item.getItemId() == R.id.menu_main_edit) {
             createBehavior = new EditActivityCreateBehavior();
             executeBehavior = new EditActivityExecuteBehavior();
-            intent.putExtra("activityID", myActivities.get(itemSelected).getID());
         } else if (item.getItemId() == R.id.menu_main_details) {
             createBehavior = new ViewActivityCreateBehavior();
             // no execute behavior
-            intent.putExtra("activityID", myActivities.get(itemSelected).getID());
         }
 
-        // pass the account to the main activity
+        // pass the attributes to the main activity
         bundle.putSerializable("account", myAccount);
+        bundle.putSerializable("activity", activity);
         bundle.putSerializable("createBehavior", createBehavior);
         bundle.putSerializable("executeBehavior", executeBehavior);
         intent.putExtras(bundle);

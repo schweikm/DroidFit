@@ -216,7 +216,7 @@ public class LoginActivity extends Activity {
                 // pass the account to the main activity
                 final Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 final Bundle bundle = new Bundle();
-                bundle.putSerializable("account", myAccount);
+                bundle.putString("email", myAccount.getEmail());
                 intent.putExtras(bundle);
 
                 startActivity(intent);
