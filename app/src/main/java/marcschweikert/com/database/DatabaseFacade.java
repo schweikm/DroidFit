@@ -25,7 +25,7 @@ public final class DatabaseFacade extends SQLiteOpenHelper {
     /**
      * Database version - change to upgrade
      */
-    private static final int DB_VERSION = 17;
+    private static final int DB_VERSION = 20;
     /**
      * Name of database
      */
